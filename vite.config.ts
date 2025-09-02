@@ -61,6 +61,7 @@ export default defineConfig({
       selfDestroying: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
+        globDirectory: 'dist',
         navigateFallback: 'index.html',
         runtimeCaching: [
           {
