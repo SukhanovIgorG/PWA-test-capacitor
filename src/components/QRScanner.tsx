@@ -92,39 +92,31 @@ const QRScanner = () => {
   };
 
   return (
-    <div className="scanner-container">
+    <div className="margin-0 p-4 w-fit flex-1 flex flex-col gap-4">
       {deferredPrompt && (
         <button
           onClick={installPWA}
-          className="install-button"
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            padding: '10px 15px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
+          className="
+            btn btn-primary btn-sm
+            absolute top-4 left-4 p-2 bg-primary text-white
+            border-none rounded-md cursor-pointer text-sm
+          "
         >
           📲
         </button>
       )}
       <h1>Сканер QR-кода</h1>
       {error && (
-        <div className="error-message">
+        <div className="bg-red-100 text-red-700 p-4 m-2 border border-red-400 rounded-md text-left">
           {error}
         </div>
       )}
       {!scanning ? (
-        <button onClick={startScanner} className="scan-button">
+        <button onClick={startScanner} className="btn btn-primary btn-sm">
           Начать сканирование
         </button>
       ) : (
-        <button onClick={stopScanner} className="scan-button">
+        <button onClick={stopScanner} className="btn btn-primary btn-sm">
           Остановить сканирование
         </button>
       )}
