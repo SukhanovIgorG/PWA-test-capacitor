@@ -212,7 +212,9 @@ const QRScanner = () => {
 
 
         </div>
-        <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
+        <div id="reader"
+          className="flex-1"
+          style={{ display: scanning ? 'block' : 'none' }}></div>
         {scanning && (
           <p>Наведите камеру на QR-код...</p>
         )}
@@ -236,7 +238,7 @@ const QRScanner = () => {
                 (e.target as HTMLInputElement).value = '';
               }}
             />
-            <span className="text-sm">📁 Выберите изображение</span>
+            <span className="text-sm text-white text-center">📁 Выберите изображение</span>
           </label>
         </div>
         {!scanning ? (
