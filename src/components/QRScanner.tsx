@@ -145,7 +145,7 @@ const QRScanner = () => {
               <select
                 value={selectedCamera || ''}
                 onChange={(e) => setSelectedCamera(e.target.value)}
-                className="flex-1 p-2 border rounded-md"
+                className="flex-1 p-2 border rounded-md max-w-[70%]"
                 disabled={scanning}
               >
                 <option className='text-black' value="">Выберите камеру</option>
@@ -169,13 +169,13 @@ const QRScanner = () => {
           </div>
         </div>
 
-        <div className=" border-2 border-gray-200 rounded-md overflow-hidden max-w-[310px] max-h-[310px]">
+        <div className="rounded-md overflow-hidden max-w-[100%] max-h-[100%]">
           <div id="reader"
             className="flex-1"
             style={{ display: scanning ? 'block' : 'none' }}>
           </div>
         </div>
-      </div>
+      </div >
 
       <div className="flex w-full gap-2 p-2">
         <div className="flex flex-1 flex-col gap-2">
@@ -207,7 +207,7 @@ const QRScanner = () => {
           className="btn btn-secondary flex-1 border-1 border-gray-200"
           disabled={!selectedCamera}
         >
-          {scanning ? "Остановить" : "Начать"} сканирование
+          {scanning ? "❌" : "📷"}
         </button>
       </div>
     </>
