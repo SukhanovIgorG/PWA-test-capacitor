@@ -3,21 +3,38 @@ import logo from '../assets/react.svg';
 
 export const HomePage = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [installedApps, setInstalledApps] = useState<any>([]);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Проверяем, установлено ли уже приложение
-    if ('getInstalledRelatedApps' in navigator) {
-      (navigator as unknown as any).getInstalledRelatedApps().then((apps: any[]) => {
-        console.log('Установленные приложения:', apps);
-        setInstalledApps(apps);
-      });
-    }
+    // Проверяем различные способы определения установки
+    const checkInstallation = () => {
+      // Проверка для iOS
+      const isIOSInstalled =
+        // @ts-expect-error - navigator.standalone is not defined in the global scope
+        window.navigator.standalone ||
+        window.matchMedia('(display-mode: standalone)').matches;
 
-    // Проверяем режим отображения
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('Приложение уже установлено и запущено в режиме standalone');
-    }
+      // Проверка для Android/Desktop через display-mode
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+      // Проверка через getInstalledRelatedApps (если доступно)
+      if ('getInstalledRelatedApps' in navigator) {
+        (navigator as unknown as any).getInstalledRelatedApps().then((apps: any[]) => {
+          setIsInstalled(apps.length > 0 || isIOSInstalled || isStandalone);
+        });
+      } else {
+        setIsInstalled(isIOSInstalled || isStandalone);
+      }
+    };
+
+    checkInstallation();
+
+    // Слушаем изменения режима отображения
+    const displayModeQuery = window.matchMedia('(display-mode: standalone)');
+    const handleDisplayModeChange = (e: MediaQueryListEvent) => {
+      setIsInstalled(e.matches);
+    };
+    displayModeQuery.addEventListener('change', handleDisplayModeChange);
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -48,18 +65,35 @@ export const HomePage = () => {
         <img src={logo} alt="logo" className="w-10 h-10" />
         <p>Установите приложение на свой телефон или компьютер</p>
       </div>
-      <p className="text-center">{installedApps.length === 0 ? 'Приложение еще не установлено ❌' : 'Приложение уже установлено ✅'}</p>
-      {deferredPrompt && (
-        <button
-          onClick={installPWA}
-          className="
-      btn btn-primary btn-sm
-      p-2 bg-primary text-white
-      border-none rounded-md cursor-pointer text-sm
-      "
-        >
-          📲
-        </button>
+      <p className="text-center">{isInstalled ? 'Приложение уже установлено ✅' : 'Приложение еще не установлено ❌'}</p>
+      {!isInstalled && (
+        <>
+          {deferredPrompt ? (
+            <button
+              onClick={installPWA}
+              className="
+          btn btn-primary btn-sm
+          p-2 bg-primary text-white
+          border-none rounded-md cursor-pointer text-sm
+          "
+            >
+              Установить приложение 📲
+            </button>
+          ) : (
+            <div className="text-sm text-center">
+              {/iPhone|iPad|iPod/.test(navigator.userAgent) ? (
+                <p>
+                  Для установки нажмите кнопку "Поделиться" (Share) в браузере Safari,<br />
+                  затем выберите "На экран «Домой»" (Add to Home Screen)
+                </p>
+              ) : (
+                <p>
+                  Используйте меню браузера для установки приложения
+                </p>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   </section>;
