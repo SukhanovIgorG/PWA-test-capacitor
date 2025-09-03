@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import App from './App.tsx'
 import './index.css'
+import { initDB } from './utils/db'
 
 // Register service worker
 const updateSW = registerSW({
@@ -19,6 +20,9 @@ const updateSW = registerSW({
     console.log('Service Worker registered:', swUrl)
   }
 })
+
+// Инициализируем базу данных
+initDB().catch(console.error);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

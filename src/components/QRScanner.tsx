@@ -1,40 +1,16 @@
 import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveScanResult } from '../utils/db';
 
 const QRScanner = () => {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
   const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([]);
   const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
   const navigate = useNavigate();
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
-
-  useEffect(() => {
-    // Проверяем, установлено ли уже приложение
-    if ('getInstalledRelatedApps' in navigator) {
-      (navigator as unknown as any).getInstalledRelatedApps().then((apps: any[]) => {
-        console.log('Установленные приложения:', apps);
-      });
-    }
-
-    // Проверяем режим отображения
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('Приложение уже установлено и запущено в режиме standalone');
-    }
-
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
 
   useEffect(() => {
     const initializeCameras = async () => {
@@ -86,9 +62,10 @@ const QRScanner = () => {
           fps: 10,
           qrbox: { width: 250, height: 250 }
         },
-        (decodedText) => {
+        async (decodedText) => {
           html5QrCodeRef.current?.stop();
           setScanning(false);
+          await saveScanResult(decodedText);
           navigate('/result', { state: { data: decodedText } });
         },
         () => {
@@ -137,6 +114,7 @@ const QRScanner = () => {
 
       try {
         const result = await html5QrCode.scanFile(file, true);
+        await saveScanResult(result);
         navigate('/result', { state: { data: result } });
       } catch (err) {
         setError('QR-код не найден на изображении');
@@ -150,32 +128,12 @@ const QRScanner = () => {
     }
   };
 
-  const installPWA = async () => {
-    if (deferredPrompt) {
-      (deferredPrompt as any).prompt();
-      const { outcome } = await (deferredPrompt as any).userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    }
-  };
+
 
   return (
-    <section className="flex flex-col items-center justify-between h-full">
-      <h1>Сканер QR-кода</h1>
+    <>
       <div className="margin-0 p-4 w-fit flex-1 flex flex-col gap-4">
-        {deferredPrompt && (
-          <button
-            onClick={installPWA}
-            className="
-            btn btn-primary btn-sm
-            absolute top-4 left-4 p-2 bg-primary text-white
-            border-none rounded-md cursor-pointer text-sm
-          "
-          >
-            📲
-          </button>
-        )}
+
         {error && (
           <div className="bg-red-100 text-red-700 p-4 m-2 border border-red-400 rounded-md text-left">
             {error}
@@ -255,7 +213,7 @@ const QRScanner = () => {
           </button>
         )}
       </div>
-    </section>
+    </>
   );
 };
 
