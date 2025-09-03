@@ -161,70 +161,65 @@ const QRScanner = () => {
   };
 
   return (
-    <div className="margin-0 p-4 w-fit flex-1 flex flex-col gap-4">
-      {deferredPrompt && (
-        <button
-          onClick={installPWA}
-          className="
+    <section className="flex flex-col items-center justify-between h-full">
+      <h1>Сканер QR-кода</h1>
+      <div className="margin-0 p-4 w-fit flex-1 flex flex-col gap-4">
+        {deferredPrompt && (
+          <button
+            onClick={installPWA}
+            className="
             btn btn-primary btn-sm
             absolute top-4 left-4 p-2 bg-primary text-white
             border-none rounded-md cursor-pointer text-sm
           "
-        >
-          📲
-        </button>
-      )}
-      <h1>Сканер QR-кода</h1>
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 m-2 border border-red-400 rounded-md text-left">
-          {error}
-        </div>
-      )}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 items-center">
-            <select
-              value={selectedCamera || ''}
-              onChange={(e) => setSelectedCamera(e.target.value)}
-              className="flex-1 p-2 border rounded-md"
-              disabled={scanning}
-            >
-              <option className="bg-gray-500 text-white" value="">Выберите камеру</option>
-              {cameras.map((camera) => (
-                <option className="bg-gray-500 text-white" key={camera.id} value={camera.id}>
-                  {camera.label}
-                </option>
-              ))}
-            </select>
-
-            {cameras.length > 1 && (
-              <button
-                onClick={switchCamera}
-                className="btn btn-secondary btn-sm p-2"
-                title="Переключить камеру"
+          >
+            📲
+          </button>
+        )}
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 m-2 border border-red-400 rounded-md text-left">
+            {error}
+          </div>
+        )}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center">
+              <select
+                value={selectedCamera || ''}
+                onChange={(e) => setSelectedCamera(e.target.value)}
+                className="flex-1 p-2 border rounded-md"
+                disabled={scanning}
               >
-                📷
-              </button>
-            )}
+                <option className="bg-gray-500 text-white" value="">Выберите камеру</option>
+                {cameras.map((camera) => (
+                  <option className="bg-gray-500 text-white" key={camera.id} value={camera.id}>
+                    {camera.label}
+                  </option>
+                ))}
+              </select>
+
+              {cameras.length > 1 && (
+                <button
+                  onClick={switchCamera}
+                  className="btn btn-secondary btn-sm p-2"
+                  title="Переключить камеру"
+                >
+                  📷
+                </button>
+              )}
+            </div>
           </div>
 
-          {!scanning ? (
-            <button
-              onClick={startScanner}
-              className="btn btn-primary btn-sm"
-              disabled={!selectedCamera}
-            >
-              Начать сканирование
-            </button>
-          ) : (
-            <button onClick={stopScanner} className="btn btn-primary btn-sm">
-              Остановить сканирование
-            </button>
-          )}
-        </div>
 
+        </div>
+        <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
+        {scanning && (
+          <p>Наведите камеру на QR-код...</p>
+        )}
+      </div>
+
+      <div className="flex gap-2 p-2">
         <div className="flex flex-col gap-2">
-          <div className="text-sm font-medium">Или отсканируйте QR-код из изображения:</div>
           <label className="flex gap-2 items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-yellow-800">
             <input
               type="file"
@@ -244,12 +239,21 @@ const QRScanner = () => {
             <span className="text-sm">📁 Выберите изображение</span>
           </label>
         </div>
+        {!scanning ? (
+          <button
+            onClick={startScanner}
+            className="btn btn-primary btn-sm"
+            disabled={!selectedCamera}
+          >
+            Начать сканирование
+          </button>
+        ) : (
+          <button onClick={stopScanner} className="btn btn-primary btn-sm">
+            Остановить сканирование
+          </button>
+        )}
       </div>
-      <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
-      {scanning && (
-        <p>Наведите камеру на QR-код...</p>
-      )}
-    </div>
+    </section>
   );
 };
 
