@@ -23,7 +23,6 @@ const QRScanner = () => {
     }
 
     const handleBeforeInstallPrompt = (e: Event) => {
-      console.log('beforeinstallprompt событие сработало');
       e.preventDefault();
       setDeferredPrompt(e);
     };
@@ -111,7 +110,7 @@ const QRScanner = () => {
             fontSize: '14px'
           }}
         >
-          Установить приложение
+          📲
         </button>
       )}
       <h1>Сканер QR-кода</h1>
