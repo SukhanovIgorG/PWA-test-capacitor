@@ -1,5 +1,5 @@
 import { Html5Qrcode } from 'html5-qrcode';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const QRScanner = () => {
@@ -7,11 +7,12 @@ const QRScanner = () => {
   const [error, setError] = useState<string | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const navigate = useNavigate();
+  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
     // Проверяем, установлено ли уже приложение
     if ('getInstalledRelatedApps' in navigator) {
-      (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
+      (navigator as unknown as any).getInstalledRelatedApps().then((apps: any[]) => {
         console.log('Установленные приложения:', apps);
       });
     }
@@ -46,21 +47,20 @@ const QRScanner = () => {
         // Даем React время для обновления DOM
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        const html5QrCode = new Html5Qrcode("reader");
-        await html5QrCode.start(
+        html5QrCodeRef.current = new Html5Qrcode("reader");
+        await html5QrCodeRef.current?.start(
           { facingMode: "environment" },
           {
             fps: 10,
             qrbox: { width: 250, height: 250 }
           },
           (decodedText) => {
-            html5QrCode.stop();
+            html5QrCodeRef.current?.stop();
             setScanning(false);
             navigate('/result', { state: { data: decodedText } });
           },
-          (errorMessage) => {
+          () => {
             // Игнорируем ошибки во время сканирования
-            console.log(errorMessage);
           }
         ).catch((err) => {
           setError('Ошибка при запуске камеры. Пожалуйста, убедитесь, что вы предоставили доступ к камере.');
@@ -75,6 +75,11 @@ const QRScanner = () => {
       setError('Ошибка при доступе к камере. Убедитесь, что вы используете HTTPS и предоставили доступ к камере.');
       setScanning(false);
     }
+  };
+
+  const stopScanner = () => {
+    setScanning(false);
+    html5QrCodeRef.current?.stop();
   };
 
   const installPWA = async () => {
@@ -115,12 +120,17 @@ const QRScanner = () => {
           {error}
         </div>
       )}
-      <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
       {!scanning ? (
         <button onClick={startScanner} className="scan-button">
           Начать сканирование
         </button>
       ) : (
+        <button onClick={stopScanner} className="scan-button">
+          Остановить сканирование
+        </button>
+      )}
+      <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
+      {scanning && (
         <p>Наведите камеру на QR-код...</p>
       )}
     </div>
