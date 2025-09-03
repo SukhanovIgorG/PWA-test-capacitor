@@ -6,7 +6,7 @@ import './index.css'
 
 // Register service worker
 const updateSW = registerSW({
-  immediate: true,
+  immediate: false,
   onNeedRefresh() {
     if (confirm('Доступно обновление. Перезагрузить?')) {
       updateSW()

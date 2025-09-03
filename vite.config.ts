@@ -9,12 +9,13 @@ export default defineConfig({
     react(),
     basicSsl(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       devOptions: {
         enabled: true,
-        type: 'module'
+        type: 'module',
+        navigateFallback: 'index.html'
       },
-      injectRegister: 'auto',
+      injectRegister: 'script',
       strategies: 'generateSW',
       manifest: {
         name: 'PWA Capacitor',
@@ -56,7 +57,7 @@ export default defineConfig({
           }
         ]
       },
-      manifestFilename: 'pwa.webmanifest',
+      manifestFilename: 'manifest.json',
       base: '/',
       selfDestroying: false,
       workbox: {
