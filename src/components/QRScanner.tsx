@@ -12,10 +12,14 @@ const QRScanner = () => {
       setError(null);
       const devices = await Html5Qrcode.getCameras();
 
-      if (devices && devices.length > 0) {
-        const html5QrCode = new Html5Qrcode("reader");
-        setScanning(true);
+      console.log("devices", devices);
 
+      if (devices && devices.length > 0) {
+        setScanning(true);
+        // Даем React время для обновления DOM
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const html5QrCode = new Html5Qrcode("reader");
         await html5QrCode.start(
           { facingMode: "environment" },
           {
@@ -40,9 +44,9 @@ const QRScanner = () => {
         setError('Камера не найдена на вашем устройстве');
       }
     } catch (err) {
+      console.error("Ошибка при доступе к камере", err);
       setError('Ошибка при доступе к камере. Убедитесь, что вы используете HTTPS и предоставили доступ к камере.');
       setScanning(false);
-      console.error(err);
     }
   };
 
@@ -54,15 +58,13 @@ const QRScanner = () => {
           {error}
         </div>
       )}
+      <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
       {!scanning ? (
         <button onClick={startScanner} className="scan-button">
           Начать сканирование
         </button>
       ) : (
-        <div>
-          <div id="reader"></div>
-          <p>Наведите камеру на QR-код...</p>
-        </div>
+        <p>Наведите камеру на QR-код...</p>
       )}
     </div>
   );
