@@ -126,6 +126,30 @@ const QRScanner = () => {
     }
   };
 
+  const handleImageScan = async (file: File) => {
+    try {
+      setError(null);
+      if (scanning) {
+        stopScanner();
+      }
+
+      const html5QrCode = new Html5Qrcode("reader");
+
+      try {
+        const result = await html5QrCode.scanFile(file, true);
+        navigate('/result', { state: { data: result } });
+      } catch (err) {
+        setError('QR-код не найден на изображении');
+        console.error('Ошибка при сканировании изображения:', err);
+      } finally {
+        html5QrCode.clear();
+      }
+    } catch (err) {
+      setError('Ошибка при обработке изображения');
+      console.error('Ошибка при обработке изображения:', err);
+    }
+  };
+
   const installPWA = async () => {
     if (deferredPrompt) {
       (deferredPrompt as any).prompt();
@@ -156,46 +180,70 @@ const QRScanner = () => {
           {error}
         </div>
       )}
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2 items-center">
-          <select
-            value={selectedCamera || ''}
-            onChange={(e) => setSelectedCamera(e.target.value)}
-            className="flex-1 p-2 border rounded-md"
-            disabled={scanning}
-          >
-            <option value="">Выберите камеру</option>
-            {cameras.map((camera) => (
-              <option key={camera.id} value={camera.id}>
-                {camera.label}
-              </option>
-            ))}
-          </select>
-
-          {cameras.length > 1 && (
-            <button
-              onClick={switchCamera}
-              className="btn btn-secondary btn-sm p-2"
-              title="Переключить камеру"
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2 items-center">
+            <select
+              value={selectedCamera || ''}
+              onChange={(e) => setSelectedCamera(e.target.value)}
+              className="flex-1 p-2 border rounded-md"
+              disabled={scanning}
             >
-              📷
+              <option className="bg-gray-500 text-white" value="">Выберите камеру</option>
+              {cameras.map((camera) => (
+                <option className="bg-gray-500 text-white" key={camera.id} value={camera.id}>
+                  {camera.label}
+                </option>
+              ))}
+            </select>
+
+            {cameras.length > 1 && (
+              <button
+                onClick={switchCamera}
+                className="btn btn-secondary btn-sm p-2"
+                title="Переключить камеру"
+              >
+                📷
+              </button>
+            )}
+          </div>
+
+          {!scanning ? (
+            <button
+              onClick={startScanner}
+              className="btn btn-primary btn-sm"
+              disabled={!selectedCamera}
+            >
+              Начать сканирование
+            </button>
+          ) : (
+            <button onClick={stopScanner} className="btn btn-primary btn-sm">
+              Остановить сканирование
             </button>
           )}
         </div>
 
-        {!scanning ? (
-          <button
-            onClick={startScanner}
-            className="btn btn-primary btn-sm"
-            disabled={!selectedCamera}
-          >
-            Начать сканирование
-          </button>
-        ) : (
-          <button onClick={stopScanner} className="btn btn-primary btn-sm">
-            Остановить сканирование
-          </button>
-        )}
+        <div className="flex flex-col gap-2">
+          <div className="text-sm font-medium">Или отсканируйте QR-код из изображения:</div>
+          <label className="flex gap-2 items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-yellow-800">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleImageScan(file);
+                }
+              }}
+              onClick={(e) => {
+                // Сброс значения input для возможности повторной загрузки того же файла
+                (e.target as HTMLInputElement).value = '';
+              }}
+            />
+            <span className="text-sm">📁 Выберите изображение</span>
+          </label>
+        </div>
       </div>
       <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
       {scanning && (
