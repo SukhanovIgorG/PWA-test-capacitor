@@ -7,7 +7,7 @@ import { ScannerPage } from './pages/Scanner';
 function App() {
   return (
     <Router>
-      <div className="h-[100dvh] flex flex-col bg-gray-800">
+      <div className="h-[100dvh] flex flex-col">
         <main className="h-full overflow-auto">
           <Routes>
             <Route path="/" element={<HomePage />} />

@@ -41,8 +41,6 @@ export const HomePage = () => {
     }
   };
 
-  console.log('deferredPrompt :>> ', deferredPrompt);
-
   return <section className="flex flex-col items-center justify-between h-full p-4">
     <h1>Главная страница</h1>
     <div className="flex flex-col gap-4 border-2 border-primary rounded-xl p-4">

@@ -148,9 +148,9 @@ const QRScanner = () => {
                 className="flex-1 p-2 border rounded-md"
                 disabled={scanning}
               >
-                <option className="bg-gray-500 text-white" value="">Выберите камеру</option>
+                <option className='text-black' value="">Выберите камеру</option>
                 {cameras.map((camera) => (
-                  <option className="bg-gray-500 text-white" key={camera.id} value={camera.id}>
+                  <option className='text-black' key={camera.id} value={camera.id}>
                     {camera.label}
                   </option>
                 ))}
@@ -167,20 +167,23 @@ const QRScanner = () => {
               )}
             </div>
           </div>
-
-
         </div>
-        <div id="reader"
-          className="flex-1"
-          style={{ display: scanning ? 'block' : 'none' }}></div>
-        {scanning && (
-          <p>Наведите камеру на QR-код...</p>
-        )}
+
+        <div className=" border-2 border-gray-200 rounded-md overflow-hidden max-w-[310px] max-h-[310px]">
+          <div id="reader"
+            className="flex-1"
+            style={{ display: scanning ? 'block' : 'none' }}>
+          </div>
+        </div>
       </div>
 
-      <div className="flex gap-2 p-2">
-        <div className="flex flex-col gap-2">
-          <label className="flex gap-2 items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer hover:bg-yellow-800">
+      <div className="flex w-full gap-2 p-2">
+        <div className="flex flex-1 flex-col gap-2">
+          <label className="
+            flex gap-2 items-center justify-center p-4 
+            border-2 border-dashed rounded-lg cursor-pointer 
+            hover:border-[#535bf2]
+          ">
             <input
               type="file"
               accept="image/*"
@@ -196,22 +199,16 @@ const QRScanner = () => {
                 (e.target as HTMLInputElement).value = '';
               }}
             />
-            <span className="text-sm text-white text-center">📁 Выберите изображение</span>
+            <span className="text-sm text-center">📁 Выберите изображение</span>
           </label>
         </div>
-        {!scanning ? (
-          <button
-            onClick={startScanner}
-            className="btn btn-primary btn-sm"
-            disabled={!selectedCamera}
-          >
-            Начать сканирование
-          </button>
-        ) : (
-          <button onClick={stopScanner} className="btn btn-primary btn-sm">
-            Остановить сканирование
-          </button>
-        )}
+        <button
+          onClick={scanning ? stopScanner : startScanner}
+          className="btn btn-secondary flex-1 border-1 border-gray-200"
+          disabled={!selectedCamera}
+        >
+          {scanning ? "Остановить" : "Начать"} сканирование
+        </button>
       </div>
     </>
   );
