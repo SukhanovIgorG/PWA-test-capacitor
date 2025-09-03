@@ -6,6 +6,8 @@ const QRScanner = () => {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
   const navigate = useNavigate();
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
@@ -34,41 +36,69 @@ const QRScanner = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const initializeCameras = async () => {
+      try {
+        const devices = await Html5Qrcode.getCameras();
+        const formattedDevices = devices.map(device => ({
+          id: device.id,
+          label: device.label
+        }));
+        setCameras(formattedDevices);
+
+        // Автоматически выбираем заднюю камеру, если она доступна
+        const backCamera = formattedDevices.find(device =>
+          device.label.toLowerCase().includes('back') ||
+          device.label.toLowerCase().includes('задняя') ||
+          device.label.toLowerCase().includes('rear')
+        );
+        if (backCamera) {
+          setSelectedCamera(backCamera.id);
+        } else if (formattedDevices.length > 0) {
+          setSelectedCamera(formattedDevices[0].id);
+        }
+      } catch (err) {
+        console.error("Ошибка при получении списка камер", err);
+        setError('Не удалось получить список камер. Убедитесь, что вы предоставили доступ к камере.');
+      }
+    };
+
+    initializeCameras();
+  }, []);
+
   const startScanner = async () => {
     try {
-      setError(null);
-      const devices = await Html5Qrcode.getCameras();
-
-      console.log("devices", devices);
-
-      if (devices && devices.length > 0) {
-        setScanning(true);
-        // Даем React время для обновления DOM
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        html5QrCodeRef.current = new Html5Qrcode("reader");
-        await html5QrCodeRef.current?.start(
-          { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 }
-          },
-          (decodedText) => {
-            html5QrCodeRef.current?.stop();
-            setScanning(false);
-            navigate('/result', { state: { data: decodedText } });
-          },
-          () => {
-            // Игнорируем ошибки во время сканирования
-          }
-        ).catch((err) => {
-          setError('Ошибка при запуске камеры. Пожалуйста, убедитесь, что вы предоставили доступ к камере.');
-          setScanning(false);
-          console.error(err);
-        });
-      } else {
-        setError('Камера не найдена на вашем устройстве');
+      if (!selectedCamera) {
+        setError('Пожалуйста, выберите камеру');
+        return;
       }
+
+      setError(null);
+      setScanning(true);
+
+      // Даем React время для обновления DOM
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      html5QrCodeRef.current = new Html5Qrcode("reader");
+      await html5QrCodeRef.current?.start(
+        selectedCamera,
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText) => {
+          html5QrCodeRef.current?.stop();
+          setScanning(false);
+          navigate('/result', { state: { data: decodedText } });
+        },
+        () => {
+          // Игнорируем ошибки во время сканирования
+        }
+      ).catch((err) => {
+        setError('Ошибка при запуске камеры. Пожалуйста, убедитесь, что вы предоставили доступ к камере.');
+        setScanning(false);
+        console.error(err);
+      });
     } catch (err) {
       console.error("Ошибка при доступе к камере", err);
       setError('Ошибка при доступе к камере. Убедитесь, что вы используете HTTPS и предоставили доступ к камере.');
@@ -79,6 +109,21 @@ const QRScanner = () => {
   const stopScanner = () => {
     setScanning(false);
     html5QrCodeRef.current?.stop();
+  };
+
+  const switchCamera = () => {
+    if (cameras.length < 2) return;
+
+    const currentIndex = cameras.findIndex(camera => camera.id === selectedCamera);
+    const nextIndex = (currentIndex + 1) % cameras.length;
+    setSelectedCamera(cameras[nextIndex].id);
+
+    if (scanning) {
+      stopScanner();
+      setTimeout(() => {
+        startScanner();
+      }, 500);
+    }
   };
 
   const installPWA = async () => {
@@ -111,15 +156,47 @@ const QRScanner = () => {
           {error}
         </div>
       )}
-      {!scanning ? (
-        <button onClick={startScanner} className="btn btn-primary btn-sm">
-          Начать сканирование
-        </button>
-      ) : (
-        <button onClick={stopScanner} className="btn btn-primary btn-sm">
-          Остановить сканирование
-        </button>
-      )}
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2 items-center">
+          <select
+            value={selectedCamera || ''}
+            onChange={(e) => setSelectedCamera(e.target.value)}
+            className="flex-1 p-2 border rounded-md"
+            disabled={scanning}
+          >
+            <option value="">Выберите камеру</option>
+            {cameras.map((camera) => (
+              <option key={camera.id} value={camera.id}>
+                {camera.label}
+              </option>
+            ))}
+          </select>
+
+          {cameras.length > 1 && (
+            <button
+              onClick={switchCamera}
+              className="btn btn-secondary btn-sm p-2"
+              title="Переключить камеру"
+            >
+              📷
+            </button>
+          )}
+        </div>
+
+        {!scanning ? (
+          <button
+            onClick={startScanner}
+            className="btn btn-primary btn-sm"
+            disabled={!selectedCamera}
+          >
+            Начать сканирование
+          </button>
+        ) : (
+          <button onClick={stopScanner} className="btn btn-primary btn-sm">
+            Остановить сканирование
+          </button>
+        )}
+      </div>
       <div id="reader" style={{ display: scanning ? 'block' : 'none' }}></div>
       {scanning && (
         <p>Наведите камеру на QR-код...</p>
