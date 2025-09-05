@@ -11,7 +11,7 @@ const Settings = () => {
     <div className="container mx-auto p-4">
       <div className="flex items-center mb-6">
         <SettingsIcon className="mr-2" />
-        <h1 className="text-2xl font-bold">Системные функции</h1>
+        <h3 className="text-2xl font-bold">Системные функции</h3>
       </div>
 
       <div className="space-y-6">

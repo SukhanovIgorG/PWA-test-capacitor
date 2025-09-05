@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import type { ScanResultType } from "../components/ResultView";
 import ResultView from "../components/ResultView";
-import { generateMockData, getAllScanResults, initDB } from "../utils/db";
+import { clearDatabase, generateMockData, getAllScanResults, initDB } from "../utils/db";
 
 export const ResultsPage = () => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [scanHistory, setScanHistory] = useState<ScanResultType[]>([]);
 
   useEffect(() => {
@@ -19,6 +20,18 @@ export const ResultsPage = () => {
     };
     loadData();
   }, []);
+
+  const handleClearDatabase = async () => {
+    try {
+      setIsClearing(true);
+      await clearDatabase();
+      setScanHistory([]);
+    } catch (error) {
+      console.error('Ошибка при очистке базы данных:', error);
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   const handleGenerateMockData = async () => {
     try {
@@ -36,12 +49,12 @@ export const ResultsPage = () => {
 
   return (
     <section className="flex flex-col items-center justify-between h-full">
-      <h1>Результаты сканирования</h1>
+      <h3>Результаты сканирования</h3>
       <div className="flex gap-4 w-full p-4 flex items-center">
         <button
           type="button"
           onClick={handleGenerateMockData}
-          disabled={isGenerating}
+          disabled={isGenerating || isClearing}
           className="btn btn-primary w-full max-w-md border-1 border-gray-200"
         >
           {isGenerating ? (
@@ -53,8 +66,16 @@ export const ResultsPage = () => {
             'Добавить 1000 тестовых записей'
           )}
         </button>
-        <span>сейчас в базе {scanHistory.length || 0} записей</span>
+        <button
+          type="button"
+          onClick={handleClearDatabase}
+          disabled={isGenerating || isClearing}
+          className="btn btn-danger w-full max-w-md border-1 border-gray-200"
+        >
+          {isClearing ? 'Очистка...' : 'Очистить базу данных'}
+        </button>
       </div>
+      <span>в базе {scanHistory.length || 0} записей</span>
       <ResultView scanHistory={scanHistory} />
     </section>
   );

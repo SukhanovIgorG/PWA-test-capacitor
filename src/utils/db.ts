@@ -66,6 +66,23 @@ export const getAllScanResults = (): Promise<ScanResult[]> => {
   });
 };
 
+export const clearDatabase = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction(STORE_NAME, 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const clearRequest = store.clear();
+
+      clearRequest.onsuccess = () => resolve();
+      clearRequest.onerror = () => reject(clearRequest.error);
+    };
+  });
+};
+
 export const generateMockData = async (count: number = 1000): Promise<void> => {
   try {
     for (let i = 0; i < count; i++) {

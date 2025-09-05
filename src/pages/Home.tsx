@@ -59,7 +59,7 @@ export const HomePage = () => {
   };
 
   return <section className="flex flex-col items-center justify-between h-full p-4">
-    <h1>Главная страница</h1>
+    <h3>Главная страница</h3>
     <div className="flex flex-col gap-4 border-2 border-primary rounded-xl p-4">
       <div className="flex gap-4 items-center">
         <img src={logo} alt="logo" className="w-10 h-10" />
