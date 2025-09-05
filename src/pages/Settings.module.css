@@ -1,0 +1,29 @@
+.settingsItem {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+.settingsButton {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  min-width: 180px;
+}
+
+.statusLabel {
+  margin-left: 16px;
+  color: var(--ion-color-medium);
+}
+
+.rangeContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.volumeLabel {
+  min-width: 60px;
+  text-align: right;
+}

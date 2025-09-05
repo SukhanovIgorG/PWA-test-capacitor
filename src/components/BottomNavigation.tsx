@@ -1,4 +1,4 @@
-import { Home, List, Scan } from 'lucide-react';
+import { Home, List, Scan, Settings } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const BottomNavigation = () => {
@@ -20,6 +20,11 @@ const BottomNavigation = () => {
       path: '/result',
       icon: <List size={24} />,
       label: 'Результаты'
+    },
+    {
+      path: '/settings',
+      icon: <Settings size={24} />,
+      label: 'Настройки'
     }
   ];
 
