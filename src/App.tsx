@@ -3,6 +3,7 @@ import BottomNavigation from './components/BottomNavigation';
 import { HomePage } from './pages/Home';
 import { ResultsPage } from './pages/Results';
 import { ScannerPage } from './pages/Scanner';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/scan" element={<ScannerPage />} />
             <Route path="/result" element={<ResultsPage />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
         <BottomNavigation />
