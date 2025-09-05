@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonItem, IonLabel, IonList, IonPage, IonRange } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonRange, IonTitle, IonToolbar } from '@ionic/react';
 import React from 'react';
 import { useAirplaneMode } from '../hooks/useAirplaneMode';
 import { useBluetooth } from '../hooks/useBluetooth';
@@ -15,8 +15,13 @@ export const SettingsPage: React.FC = () => {
   const { volume, setVolumeLevel } = useVolume();
 
   return (
-    <IonPage>
-      <IonContent>
+    <IonPage className="ion-page-ios-notch">
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Настройки</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="ion-padding">
         <IonList>
           <IonItem className={styles.settingsItem}>
             <IonButton className={styles.settingsButton} onClick={toggleBluetooth}>
