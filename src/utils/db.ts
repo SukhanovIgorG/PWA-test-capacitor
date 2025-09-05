@@ -65,3 +65,15 @@ export const getAllScanResults = (): Promise<ScanResult[]> => {
     };
   });
 };
+
+export const generateMockData = async (count: number = 1000): Promise<void> => {
+  try {
+    for (let i = 0; i < count; i++) {
+      const mockData = `Mock QR Code #${Math.random().toString(36).substring(7)} - ${new Date().toISOString()}`;
+      await saveScanResult(mockData);
+    }
+  } catch (error) {
+    console.error('Ошибка при генерации моковых данных:', error);
+    throw error;
+  }
+};

@@ -1,30 +1,14 @@
-import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getAllScanResults, initDB } from '../utils/db';
 
-interface ScanResult {
+export interface ScanResultType {
   id?: number;
   result: string;
   timestamp: Date;
 }
 
-const ResultView = () => {
+const ResultView = ({ scanHistory }: { scanHistory: ScanResultType[] }) => {
   const location = useLocation();
   const scannedData = location.state?.data || 'Данные не найдены';
-  const [scanHistory, setScanHistory] = useState<ScanResult[]>([]);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        await initDB();
-        const results = await getAllScanResults();
-        setScanHistory(results);
-      } catch (error) {
-        console.error('Ошибка при загрузке истории сканирований:', error);
-      }
-    };
-    loadData();
-  }, []);
 
   return (
     <div className="max-w-600px mx-auto p-4 shadow-md w-full h-full flex flex-col gap-4">
